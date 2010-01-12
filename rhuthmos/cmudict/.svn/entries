@@ -1,0 +1,99 @@
+8
+
+dir
+9290
+https://cmusphinx.svn.sourceforge.net/svnroot/cmusphinx/trunk/cmudict
+https://cmusphinx.svn.sourceforge.net/svnroot/cmusphinx
+
+
+
+2009-08-11T08:08:54.123165Z
+9250
+nshmyrev
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+c60273ff-4a12-0410-8d58-82ceea6d4170
+
+00README_FIRST.txt
+file
+
+
+
+
+2009-09-07T14:49:31.000000Z
+66c31be25122ce8c69a876c767e350d5
+2008-04-21T04:21:16.746794Z
+8122
+air
+has-props
+
+scripts
+dir
+
+README.weide
+file
+
+
+
+
+2009-09-07T14:49:31.000000Z
+f8ebd14704ee076999e3f01e553445b1
+2008-02-19T17:40:39.022487Z
+7825
+air
+has-props
+
+README.old
+file
+
+
+
+
+2009-09-07T14:49:31.000000Z
+6af8abd4076ad8ea079abe075b80793c
+2009-06-29T21:47:36.028496Z
+9176
+air
+has-props
+
+cmudict.0.7a
+file
+
+
+
+
+2009-09-07T14:49:31.000000Z
+9dfac6e6dd79073d89e9a8095900f60e
+2009-08-11T08:08:54.123165Z
+9250
+nshmyrev
+has-props
+
+sphinxdict
+dir
+
+cmudict.0.6d
+file
+
+
+
+
+2009-09-07T14:49:31.000000Z
+d0e4e3749ed983ef29fa448a223c9d9a
+2008-02-19T17:40:39.022487Z
+7825
+air
+has-props
+
