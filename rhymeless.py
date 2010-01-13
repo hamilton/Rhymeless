@@ -6,6 +6,8 @@ from math import log
 from random import sample, random, randint
 from rhuthmos.rhuthmos import Rhuthmos
 
+import sqlite3
+
 class IdeaManager(object):
 	def __init__(self):
 		self.ideas = set(os.listdir('data/'))
@@ -44,7 +46,16 @@ class RhymelessUtilityBelt(object):
 				if two_2 == two_1: two_2 = None
 			#sample(self.find(one_1), 1)
 			
-			if one_1 != None and one_2 != None and two_1 != None and two_2 != None and len(one_1) > MINLENGTH  and len(one_2) > MINLENGTH and len(two_1) > MINLENGTH and len(two_2) > MINLENGTH and one_1 != two_1:
+			if (one_1 != None and one_2 != None and two_1 != None and two_2 != None) and \
+				len(one_1) > MINLENGTH and \
+				len(one_2) > MINLENGTH and \
+				len(two_1) > MINLENGTH and \
+				len(two_2) > MINLENGTH and \
+				one_1 != two_1 and \
+				one_1 not in set(["whatever", "whenever"]) and \
+				one_2 not in set(["whatever", "whenever"]) and \
+				two_1 not in set(["whatever", "whenever"]) and \
+				two_2 not in set(["whatever", "whenever"]):
 				break
 			else:
 				one_1, one_2 = None, None
@@ -176,12 +187,16 @@ class Rhymeless(RhymelessUtilityBelt, IdeaManager, Rhuthmos):
 				final_line = line
 		return final_line
 	
-	def generate_poem(self, method = 'naive', style="whatever"):
+	def generate_poem(self, method = 'naive', style="whatever", output="plain"):
 		"""
 		Generates a short 4-line poem.
 		
 		"""
 		
+		outputs = set(["plain", "html", "sqlite"])
+		if output not in outputs:
+			raise ValueError, "output '%s' not valid." % output
+			
 		args = {
 			'style' : style,
 			'words' : 0,
@@ -238,13 +253,26 @@ class Rhymeless(RhymelessUtilityBelt, IdeaManager, Rhuthmos):
 			sentence.reverse()
 			sentence = sentence[1:]
 			sentence = sentence[1:] if sentence[0] == ',' else sentence
+			sentence[0] = sentence[0].capitalize()
+			
 			sentence = ' '.join(sentence)
 			sentence = sentence.replace(' ,', ',')
 			sentence = sentence.replace(' :', ':')
 			sentence = sentence.replace(' ;', ';')
-			stanzas.append(''.join([sentence, '.']))
+
+			stanzas.append(''.join([sentence, ".  " if randint(0,1) == 1 or len(stanzas) == 3 else ""
+			]))
 			
-		return '\n'.join(stanzas)
+		if output == "html" or output == "sqlite":
+			stanzas = ["\n\t%s" % stanza for stanza in stanzas]
+			poem = '<br>'.join(stanzas)
+			poem = "%s<br>" % poem
+			#print poem
+			poem = "<div class='poem'>%s\n</div>" % poem
+		elif output == "plain":
+			poem = "\n".join(stanzas)
+		return poem
+
 	
 	
 	#################################################
@@ -325,16 +353,89 @@ class Rhymeless(RhymelessUtilityBelt, IdeaManager, Rhuthmos):
 				candidate = None
 		return candidate
 
-def main():
-	from time import sleep
-	#a = Growl.GrowlNotifier("arg.py", ['wtf'])
-	#a.register()
-	books = ['otoos11.txt']#, 'dscmn10.txt']
+
+#######################################################
+# Some command line helper functions, variables, etc. #
+#######################################################
+
+def usage():
+	print "usage: python rhymeless.py <task> <additional arguments>"
+
+help = """
+#############################################
+# The Rhymeless Stochastic Stanza Generator #
+#############################################
+
+Generates poetry using a text file, a pronunciation dictionary,
+and lots of hacky random walks.
+
+SIMPLE EXAMPLES:
+
+python rhymeless.py plain bible.txt > bible_verse.txt
+	Puts results in new text file.
+
+python rhymeless.py html prince.txt nietzsche.txt --number=100  > mashup.html
+	Trains on said text files, and formats them to html.  As with the rest of these,
+	the --number=N argument tells me how many to output.  Default is 100.
+	Check out the HTML section below.
+
+python rhymeless.py sqlite prince.txt nietzsche.txt --using=my_config.cnf
+	Dumps the output into a sqlite database, according to my_config.cnf, which must
+	be in the same directory as the script.
+
+
+What you can or should put in <other args>:
+
+	-- Required:
+
+first.txt second.txt third.txt                 <= any number of raw text files. These are the training sets.
+
+	-- Optional:
+[--number=100]                                 <= specifies the number of stanzas to print. default 100.
+
+
+"""
+
+def train_these_books(book_list, config):
+	########################
+	# load configparser.   #
+	########################
+	
+	
+	#print dir(config)
+	#print config.options("directory")
+	book_dir = config.get("directory", "book_dir")
+	
+	if not os.path.isdir(book_dir):
+		raise IOError, "The path defined in your config.cnf file does not exist: %s" % book_dir
+	
+	######################################################################
+	# Check for existence of each book before parsing.  Should save user #
+	# some time if there is in fact an error.                            #
+	######################################################################
+	
+	books = args[1:]
+	
+	for book in books:
+		#if not os.path.isfile("%s/%s" % (book_dir, book)):
+		#	raise IOError, "%s does not seem to exist." % book
+		# the preceding method is apparently insecure, as a maliciously created race condition
+		# can ruin your day.
+		try:
+			test = open("%s/%s" % (book_dir, book))
+			test.close()
+		except:
+			raise IOError, "%s does not exist." % book
+	
+	######################################################################
+	# Begin Parsing.                                                     #
+	######################################################################
+	
 	monster = Rhymeless()
 	
 	for book in books:
 		
-		book = open('books/otoos11.txt')
+		book = open("%s/%s" % (book_dir, book))
 		lines = []
 		for line in book:
 			# for other books:
@@ -346,30 +447,87 @@ def main():
 				lines.append(line)
 		book.close()
 		book = ' '.join(lines)
-		monster.train(book) 
-	
-	
-	#for i in ['hello', 'awful', 'make', 'terrorist']:
-	#	print monster.pick_appropriate()
-	print "working:"
-	while True:
-		one = monster.generate_poem(style="poem")
-		print one
-		#monster.sample_in_meter()
-		print '\n\n'
-		#two = monster.generate_haiku()
-		#print two
-		#print two
-		#print '\n\n'
-		#a.notify('wtf', "", one)
-		sleep(3)
-	
-	#while True:
-	#	print monster.sample_in_meter()
-	#while True:
-	#	monster.sample_meter()
-	#	sleep(2)
-		
+		monster.train(book)
+	return monster
+
+def get_rhymeless_sqlite_con_and_cursor(config):
+	try:
+		sqlite_path = config.get("sqlite", "db_dir")
+	except:
+		raise IOError, "Your sqlite section of your config.cnf has an error.  Check the examples to see what's wrong."
+	full_path = "%s/%s" % (sqlite_path, "sqlite.db")
+	try:
+		if os.path.exists(full_path):
+			os.remove(full_path)
+		conn = sqlite3.connect(full_path)
+	except:
+		raise ValueError, "could not connect to %s" % full_path
+	c = conn.cursor()
+	# create database.
+	c.execute("""
+	create table entries(
+		used TINYINT,
+		content TEXT
+	)
+	""")
+	return conn, c
+
+
 
 if __name__ == '__main__':
-	main()
+	""""""
+	
+	import sys
+	
+	if len(sys.argv) == 1:
+		usage()
+		print "run 'python rhymeless.py -h' for a list of options."
+		sys.exit()
+	
+	import getopt
+	try:
+		optlist, args = getopt.getopt(sys.argv[1:], "h", ['--number', '--using'])
+	except:
+		sys.exit()
+	
+	if ("-h", "") in optlist:
+		print help
+		sys.exit()
+	if len(args) > 0 and args[0] in set(["plain", "html", "sqlite"]):
+		MODE = args[0]
+	else:
+		raise IOError, "\n\nYou didn't specify a mode.\n\nSee python rhymeless.py -h for more details.\n\n"
+	
+
+	
+	from time import sleep
+	
+	books = args[:1]
+	
+	import ConfigParser
+	config = ConfigParser.ConfigParser()
+	
+	try:
+		config.read('config.cnf')
+	except:
+		raise IOError, "you have not properly defined a config.cnf file.  See the accompanying README file for more details."
+	
+	##################################################################
+	# If in sqlite mode, check that everything works before parsing. #
+	##################################################################
+	
+	if MODE == "sqlite":
+		conn, cursor = get_rhymeless_sqlite_con_and_cursor(config)
+	
+	monster = train_these_books(books, config)
+	
+	for i in xrange(100):
+		one = monster.generate_poem(style="poem", output=MODE)
+		if MODE == "sqlite":
+			# insert results into the db.
+			cursor.execute("""INSERT INTO entries values(0, ?)""", [one])
+		else:
+			print one
+			print "\n"
+	if MODE == "sqlite":
+		conn.commit()
