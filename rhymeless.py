@@ -449,6 +449,7 @@ def get_rhymeless_sqlite_con_and_cursor(config):
 	try:
 		sqlite_path = config.get("sqlite", "db_dir")
 	except:
+		print config.get("sqlite", "db_dir")
 		raise IOError, "Your sqlite section of your config.cnf has an error.  Check the examples to see what's wrong with %s" %"%s/%s" % (sqlite_path, "sqlite.db")
 	full_path = "%s/%s" % (sqlite_path, "sqlite.db")
 	try:
