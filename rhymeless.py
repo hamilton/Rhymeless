@@ -8,10 +8,6 @@ from rhuthmos.rhuthmos import Rhuthmos
 
 import sqlite3
 
-class IdeaManager(object):
-	def __init__(self):
-		self.ideas = set(os.listdir('data/'))
-		
 
 class RhymelessUtilityBelt(object):
 	def __init__(self):
@@ -84,11 +80,10 @@ class RhymelessUtilityBelt(object):
 
 
 
-class Rhymeless(RhymelessUtilityBelt, IdeaManager, Rhuthmos):
+class Rhymeless(RhymelessUtilityBelt,  Rhuthmos):
 	def __init__(self):
 		
 		RhymelessUtilityBelt.__init__(self)
-		IdeaManager.__init__(self)
 		Rhuthmos.__init__(self)
 		self.initiate_dictionary()
 		
@@ -485,11 +480,23 @@ if __name__ == '__main__':
 		sys.exit()
 	
 	import getopt
+	#optlist, args = getopt.getopt(sys.argv[1:], "hn", ['--number=', '--using='])
+	#print optlist, args
 	try:
-		optlist, args = getopt.getopt(sys.argv[1:], "h", ['--number', '--using'])
+		optlist, args = getopt.getopt(sys.argv[1:], "h", ['number=', 'using='])
 	except:
 		sys.exit()
+	optlist = dict(optlist)
 	
+	if '--number' not in optlist:
+		optlist['--number'] = 100
+	else:
+		try:
+			optlist['--number'] = int(optlist['--number'])
+		except TypeError, err:
+			print err
+	#print args
+	#sys.exit()
 	if ("-h", "") in optlist:
 		print help
 		sys.exit()
@@ -498,7 +505,7 @@ if __name__ == '__main__':
 	else:
 		raise IOError, "\n\nYou didn't specify a mode.\n\nSee python rhymeless.py -h for more details.\n\n"
 	
-
+	
 	
 	from time import sleep
 	
@@ -521,7 +528,7 @@ if __name__ == '__main__':
 	
 	monster = train_these_books(books, config)
 	
-	for i in xrange(100):
+	for i in xrange(optlist['--number']):
 		one = monster.generate_poem(style="poem", output=MODE)
 		if MODE == "sqlite":
 			# insert results into the db.
