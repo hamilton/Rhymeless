@@ -1,0 +1,23 @@
+http://rhymeless.hamiltonulmer.com
+
+Rhymeless is a small stochatic poetry generator written in Python 2.6.
+You input as many strings of text as you want, and it will
+output a four line poem.
+
+You can run rhymeless.py as a script, carroting in raw text files.  There are a number of different output types I've made.  To see them all, just type 
+
+python rhymeless.py --help
+
+and you'll get a list of them.  For a few of the output methods, it makes sense to go ahead and create a configuration file in this style: 
+
+[directory]
+book_dir: /path/to/another/dir/books
+
+[sqlite]
+db_dir: /path/to/where/I/want/my/sqlite/dbs/rhymeless
+
+
+[site]
+site_dir: /var/.../path/to/rhymeless/site
+
+Where book_dir is obviously a directory of the raw text you have. db_dir is the target directory where you would dump your sqlite database (I built this for such a use).  You can take a look at the source if you're confused.  Because it's not necessary for you to do this, feel free to just look at the small code snippet in the url above.

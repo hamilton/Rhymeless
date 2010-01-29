@@ -182,7 +182,7 @@ class Rhymeless(RhymelessUtilityBelt,  Rhuthmos):
 				final_line = line
 		return final_line
 	
-	def generate_poem(self, method = 'naive', style="whatever", output="plain"):
+	def generate_poem(self, method = 'naive', style="poem", output="plain"):
 		"""
 		Generates a short 4-line poem.
 		
@@ -275,7 +275,7 @@ class Rhymeless(RhymelessUtilityBelt,  Rhuthmos):
 	#################################################
 	
 	def _is_not_punct(self, char):
-		return char not in '!"#$%&\'()*+-./<=>?@[\\]^_`{|}~' + '\n\t\r'
+		return char not in '!"#$%&\'();*+-./<=>?@[\\]^_`{|}~' + '\n\t\r'
 	
 	def _clean_text(self, elem):
 		"""
